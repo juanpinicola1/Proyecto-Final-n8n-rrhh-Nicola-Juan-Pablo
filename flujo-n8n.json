@@ -1,0 +1,2058 @@
+{
+  "name": "Trabajo FInal",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "q": "has:attachment CV -from:juanpi.nicola1@gmail.com is:unread"
+        },
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -3360,
+        -80
+      ],
+      "id": "2876a092-a9a6-44cd-8125-d8617ab7b666",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "U4M88jGQe9xXmL7k",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "attachment_0",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -2848,
+        -80
+      ],
+      "id": "95c44088-c9d4-4a86-ade6-04648f618833",
+      "name": "Extract from File",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "load",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "rrhh-cv",
+          "mode": "list",
+          "cachedResultName": "rrhh-cv"
+        },
+        "prompt": "={{ $('Edit Fields').item.json.textoCV }}\n",
+        "topK": 3,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        -1952,
+        -112
+      ],
+      "id": "6fb84907-5725-4452-a5a3-0dbb9c27688f",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "zvJZ07RV6LYox9Xo",
+          "name": "Pinecone account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "markAsRead",
+        "messageId": "={{ $('Gmail Trigger').first().json.id }}"
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1248,
+        -400
+      ],
+      "id": "0719c27a-9103-4049-b218-7012f610da35",
+      "name": "Mark a message as read",
+      "webhookId": "10c6f2e2-72a3-4672-9b18-ec8a23ba9426",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "U4M88jGQe9xXmL7k",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6e35d8ab-1bee-44de-b23b-16f08967edad",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": "approved",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        256,
+        -304
+      ],
+      "id": "9b625f59-4df7-4fb3-91b3-a5786b827780",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appEakNtIBsD3FmrT",
+          "mode": "list",
+          "cachedResultName": "Sistema de Seleccion RRHH",
+          "cachedResultUrl": "https://airtable.com/appEakNtIBsD3FmrT"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblWO9UioKTjNToC8",
+          "mode": "list",
+          "cachedResultName": "Candidatos",
+          "cachedResultUrl": "https://airtable.com/appEakNtIBsD3FmrT/tblWO9UioKTjNToC8"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Nombre": "={{ $('Gmail Trigger').item.json.from.value[0].name }}",
+            "Puesto": "=Analista de Recursos Humanos",
+            "Estado": "=Pendiente",
+            "Fecha ingreso ": "={{ $now.toFormat('yyyy-MM-dd') }}",
+            "Email": "={{ $('Gmail Trigger').item.json.from.value[0].address }}",
+            "Mail enviado ": "No"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Nombre",
+              "displayName": "Nombre",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Puesto",
+              "displayName": "Puesto",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Puntaje",
+              "displayName": "Puntaje",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Justificacion",
+              "displayName": "Justificacion",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha ingreso ",
+              "displayName": "Fecha ingreso ",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "error",
+              "displayName": "error",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Mail enviado ",
+              "displayName": "Mail enviado ",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Si",
+                  "value": "Si"
+                },
+                {
+                  "name": "No",
+                  "value": "No"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -2272,
+        -64
+      ],
+      "id": "929df1c6-58f2-4cc0-80fa-b873b311f188",
+      "name": "Create a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "qU1lf39GXnxZSyn4",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appEakNtIBsD3FmrT",
+          "mode": "list",
+          "cachedResultName": "Sistema de Seleccion RRHH",
+          "cachedResultUrl": "https://airtable.com/appEakNtIBsD3FmrT"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblWO9UioKTjNToC8",
+          "mode": "list",
+          "cachedResultName": "Candidatos",
+          "cachedResultUrl": "https://airtable.com/appEakNtIBsD3FmrT/tblWO9UioKTjNToC8"
+        },
+        "filterByFormula": "=={Email}=\"{{ $('Gmail Trigger').first().json.from.value[0].address }}\"",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        -448
+      ],
+      "id": "efb34aec-77c7-4bce-b774-70d1430379a8",
+      "name": "Rama Aprobados",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "qU1lf39GXnxZSyn4",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appEakNtIBsD3FmrT",
+          "mode": "list",
+          "cachedResultName": "Sistema de Seleccion RRHH",
+          "cachedResultUrl": "https://airtable.com/appEakNtIBsD3FmrT"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblWO9UioKTjNToC8",
+          "mode": "list",
+          "cachedResultName": "Candidatos",
+          "cachedResultUrl": "https://airtable.com/appEakNtIBsD3FmrT/tblWO9UioKTjNToC8"
+        },
+        "filterByFormula": "=={Email}=\"{{ $('Gmail Trigger').first().json.from.value[0].address }}\"",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        496,
+        -256
+      ],
+      "id": "c090b325-d584-4dc1-bee7-5ee019fc95b7",
+      "name": "Rama Rechazados",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "qU1lf39GXnxZSyn4",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Rama Aprobados').item.json.fields.Email }}",
+        "subject": "=¡Felicitaciones! — {{ $('Rama Aprobados').item.json.fields.Puesto }}",
+        "message": "=Hola {{ $('Rama Aprobados').item.json.fields.Nombre }},<br><br>\n\nRevisamos tu perfil y te avisamos que pasaste a la siguiente etapa para la postulacion de  <b>{{ $('Rama Aprobados').item.json.fields.Puesto }}</b>.<br><br>\n\nEn los próximos días nos pondremos en contacto para coordinar fecha y horario.<br><br>\n\nSaludos cordiales,<br>\nEquipo de RRHH",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        704,
+        -432
+      ],
+      "id": "0d527469-055a-4541-b2e1-d230605523c5",
+      "name": "Mensaje Aprovado",
+      "webhookId": "de6e1af9-0037-4f5f-81be-e5ef55e17bb2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "U4M88jGQe9xXmL7k",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Rama Rechazados').item.json.fields.Email }}",
+        "subject": "=Respuesta a tu postulación — {{ $('Rama Rechazados').item.json.fields.Puesto }}\n",
+        "message": "=Hola {{ $('Rama Rechazados').item.json.fields.Nombre }},<br><br>\n\nMuchas gracias por tu interés en la posición de <b>{{ $('Rama Rechazados').item.json.fields.Puesto }}</b>.<br><br>\n\nHemos revisado tu perfil con atención. Por el momento no avanzaremos con tu candidatura ya que estamos buscando un perfil con características diferentes.<br><br>\n\nTe deseamos mucho éxito en tu búsqueda laboral.<br><br>\n\nSaludos cordiales,<br>\nEquipo de RRHH",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        704,
+        -256
+      ],
+      "id": "5e47a411-fe69-490d-bb0b-2b112b18b6b3",
+      "name": "Mensaje Rechazado",
+      "webhookId": "de6e1af9-0037-4f5f-81be-e5ef55e17bb2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "U4M88jGQe9xXmL7k",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8020f995-bbc6-456d-9c24-5fc40047d3d6",
+              "name": "textoCV",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2544,
+        -64
+      ],
+      "id": "07b35f08-b1c1-4bb5-9419-d08c8710a795",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2b9dc5fd-1eb4-41cb-aaa8-a8144b38688d",
+              "name": "Perfil",
+              "value": "={{ $json.document.pageContent }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1616,
+        -96
+      ],
+      "id": "50763e8e-1644-48e7-b362-59ed25d26276",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=CV del candidato:\n{{ $('Edit Fields').item.json.textoCV }}\n\nPerfil del puesto:\n{{ $('Edit Fields2').item.json.Perfil }}",
+        "options": {
+          "systemMessage": "Sos un asistente experto en RRHH. Recibís el texto de un CV y el perfil del puesto, y tu tarea es:\n1. Extraer los datos del candidato\n2. Evaluar qué tan bien aplica al puesto\n\nDevolvé SOLO un JSON puro sin markdown:\n{\n  \"nombre\": \"nombre completo del candidato\",\n  \"email\": \"email del candidato o vacío\",\n  \"experiencia\": \"resumen en una frase\",\n  \"habilidades\": \"lista separada por comas\",\n  \"estudios\": \"nivel y carrera\",\n  \"puntaje\": número del 1 al 10,\n  \"apto\": true o false,\n  \"justificacion\": \"máximo 2 oraciones explicando el puntaje\"\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -1328,
+        -64
+      ],
+      "id": "3cee5aca-1f52-49c0-8320-0b5d8fa3a38c",
+      "name": "AI Agent",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "37000b46-fc0e-401a-b5f0-afcfdce1ae7f",
+              "name": "Nombre",
+              "value": "={{ JSON.parse($json.output.replace(/```json|```/g, '').trim()).nombre }}",
+              "type": "string"
+            },
+            {
+              "id": "504ef973-d4ca-4160-a17b-6009ce03f278",
+              "name": "email",
+              "value": "={{ JSON.parse($json.output.replace(/```json|```/g, '').trim()).email }}",
+              "type": "string"
+            },
+            {
+              "id": "bcdce6eb-00e1-428d-a227-f953dfa30f54",
+              "name": "puntaje",
+              "value": "={{ JSON.parse($json.output.replace(/```json|```/g, '').trim()).puntaje }}",
+              "type": "string"
+            },
+            {
+              "id": "a4b12d8f-1417-4e12-a476-47905a4b38bd",
+              "name": "justificacion",
+              "value": "={{ JSON.parse($json.output.replace(/```json|```/g, '').trim()).justificacion }}",
+              "type": "string"
+            },
+            {
+              "id": "8ba35a72-9398-488f-b369-2aeef0677d23",
+              "name": "outputCompleto",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -880,
+        -48
+      ],
+      "id": "bd0e00b3-01b3-4112-bc5e-b02dae763b96",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appEakNtIBsD3FmrT",
+          "mode": "list",
+          "cachedResultName": "Sistema de Seleccion RRHH",
+          "cachedResultUrl": "https://airtable.com/appEakNtIBsD3FmrT"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblWO9UioKTjNToC8",
+          "mode": "list",
+          "cachedResultName": "Candidatos",
+          "cachedResultUrl": "https://airtable.com/appEakNtIBsD3FmrT/tblWO9UioKTjNToC8"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $('Gmail Trigger').first().json.from.value[0].address }}",
+            "Estado": "=Aprobado"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Nombre",
+              "displayName": "Nombre",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Puesto",
+              "displayName": "Puesto",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Puntaje",
+              "displayName": "Puntaje",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Justificacion",
+              "displayName": "Justificacion",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha ingreso ",
+              "displayName": "Fecha ingreso ",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "error",
+              "displayName": "error",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        912,
+        -432
+      ],
+      "id": "f7f86244-62f0-4846-b750-2bd7a733440d",
+      "name": "Cambio Aprobado en planilla",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "qU1lf39GXnxZSyn4",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appEakNtIBsD3FmrT",
+          "mode": "list",
+          "cachedResultName": "Sistema de Seleccion RRHH",
+          "cachedResultUrl": "https://airtable.com/appEakNtIBsD3FmrT"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblWO9UioKTjNToC8",
+          "mode": "list",
+          "cachedResultName": "Candidatos",
+          "cachedResultUrl": "https://airtable.com/appEakNtIBsD3FmrT/tblWO9UioKTjNToC8"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $('Gmail Trigger').first().json.from.value[0].address }}",
+            "Estado": "=Rechazado"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Nombre",
+              "displayName": "Nombre",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Puesto",
+              "displayName": "Puesto",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Puntaje",
+              "displayName": "Puntaje",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Justificacion",
+              "displayName": "Justificacion",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha ingreso ",
+              "displayName": "Fecha ingreso ",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "error",
+              "displayName": "error",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        912,
+        -256
+      ],
+      "id": "664ddb6f-c7b3-4e74-b3ec-1addab0de9e2",
+      "name": "Cambio rechazado en planilla",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "qU1lf39GXnxZSyn4",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "embed-multilingual-v3.0"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsCohere",
+      "typeVersion": 1,
+      "position": [
+        -1872,
+        96
+      ],
+      "id": "543103ca-fae7-433c-bf7b-da2decf4fe61",
+      "name": "Embeddings Cohere",
+      "credentials": {
+        "cohereApi": {
+          "id": "LuaS4m4XF9JXm61N",
+          "name": "Cohere account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -1392,
+        160
+      ],
+      "id": "c7bf8347-54d5-4449-a67d-d1e978c85817",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "vZzpDGJfKVlXrmnu",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appEakNtIBsD3FmrT",
+          "mode": "list",
+          "cachedResultName": "Sistema de Seleccion RRHH",
+          "cachedResultUrl": "https://airtable.com/appEakNtIBsD3FmrT"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblWO9UioKTjNToC8",
+          "mode": "list",
+          "cachedResultName": "Candidatos",
+          "cachedResultUrl": "https://airtable.com/appEakNtIBsD3FmrT/tblWO9UioKTjNToC8"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $('Gmail Trigger').first().json.from.value[0].address }}",
+            "Estado": "=Procesado por IA",
+            "Puntaje": "={{ $('Edit Fields1').item.json.puntaje }}",
+            "Justificacion": "={{ $('Edit Fields1').item.json.justificacion }}",
+            "id": "={{ $('Create a record').item.json.id }}",
+            "Nombre": "={{ $('Edit Fields1').item.json.Nombre }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Nombre",
+              "displayName": "Nombre",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Puesto",
+              "displayName": "Puesto",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Puntaje",
+              "displayName": "Puntaje",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Justificacion",
+              "displayName": "Justificacion",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha ingreso ",
+              "displayName": "Fecha ingreso ",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "error",
+              "displayName": "error",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -176,
+        -144
+      ],
+      "id": "c0e3688e-105f-4e0f-adf1-4d69b60d2846",
+      "name": "Update record6",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "qU1lf39GXnxZSyn4",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "sendTo": "=juanpi.nicola1@gmail.com",
+        "subject": "=⚠️ Aprobación requerida — {{ $('Update record7').item.json.fields.Nombre }}\n",
+        "message": "=Nuevo candidato para revisar:<br><br>\n<b>Nombre:</b> {{ $('Update record6').item.json.fields.Nombre }}<br><br>\n<b>Email:</b> {{ $('Update record6').item.json.fields.Email }}<br><br>\n<b>Puesto:</b> {{ $('Update record6').item.json.fields.Puesto }}<br><br>\n<b>Puntaje IA:</b> {{ $('Edit Fields1').item.json.puntaje }}/10<br><br>\n<b>Justificación:</b> {{ $('Edit Fields1').item.json.justificacion }}<br><br>\n¿Qué hacemos con este candidato?",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "Aprobar",
+            "disapproveLabel": "Rechazar"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        48,
+        -176
+      ],
+      "id": "d142f804-6e74-49e7-99a9-e04ada254843",
+      "name": "Send message and wait for response2",
+      "webhookId": "da48b31c-7635-4974-a8db-f126edcd7362",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "U4M88jGQe9xXmL7k",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appEakNtIBsD3FmrT",
+          "mode": "list",
+          "cachedResultName": "Sistema de Seleccion RRHH",
+          "cachedResultUrl": "https://airtable.com/appEakNtIBsD3FmrT"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblWO9UioKTjNToC8",
+          "mode": "list",
+          "cachedResultName": "Candidatos",
+          "cachedResultUrl": "https://airtable.com/appEakNtIBsD3FmrT/tblWO9UioKTjNToC8"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Nombre": "={{ $('Gmail Trigger').first().json.from.value[0].name }}",
+            "Email": "={{ $('Gmail Trigger').first().json.from.value[0].address }}",
+            "id": "={{ $('Create a record').item.json.id }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Nombre",
+              "displayName": "Nombre",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Puesto",
+              "displayName": "Puesto",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Puntaje",
+              "displayName": "Puntaje",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Justificacion",
+              "displayName": "Justificacion",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha ingreso ",
+              "displayName": "Fecha ingreso ",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "error",
+              "displayName": "error",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -608,
+        -112
+      ],
+      "id": "c44ba329-7590-47c1-90f0-798f5046f796",
+      "name": "Update record7",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "qU1lf39GXnxZSyn4",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appEakNtIBsD3FmrT",
+          "mode": "list",
+          "cachedResultName": "Sistema de Seleccion RRHH",
+          "cachedResultUrl": "https://airtable.com/appEakNtIBsD3FmrT"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblWO9UioKTjNToC8",
+          "mode": "list",
+          "cachedResultName": "Candidatos",
+          "cachedResultUrl": "https://airtable.com/appEakNtIBsD3FmrT/tblWO9UioKTjNToC8"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Create a record').item.json.id }}",
+            "Mail enviado ": "Si"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Nombre",
+              "displayName": "Nombre",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Puesto",
+              "displayName": "Puesto",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Puntaje",
+              "displayName": "Puntaje",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Justificacion",
+              "displayName": "Justificacion",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha ingreso ",
+              "displayName": "Fecha ingreso ",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "error",
+              "displayName": "error",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Mail enviado ",
+              "displayName": "Mail enviado ",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Si",
+                  "value": "Si"
+                },
+                {
+                  "name": "No",
+                  "value": "No"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -384,
+        -96
+      ],
+      "id": "c676c8f4-f4db-4b11-86f5-bf341d82c0aa",
+      "name": "Update record8",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "qU1lf39GXnxZSyn4",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appEakNtIBsD3FmrT",
+          "mode": "list",
+          "cachedResultName": "Sistema de Seleccion RRHH",
+          "cachedResultUrl": "https://airtable.com/appEakNtIBsD3FmrT"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblWO9UioKTjNToC8",
+          "mode": "list",
+          "cachedResultName": "Candidatos",
+          "cachedResultUrl": "https://airtable.com/appEakNtIBsD3FmrT/tblWO9UioKTjNToC8"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $('Gmail Trigger')?.first()?.json?.from?.value[0]?.address ?? 'Email no disponible' }}",
+            "error": "=ERROR",
+            "Estado": "ERROR EN NODO IA "
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Nombre",
+              "displayName": "Nombre",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Puesto",
+              "displayName": "Puesto",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Puntaje",
+              "displayName": "Puntaje",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Justificacion",
+              "displayName": "Justificacion",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha ingreso ",
+              "displayName": "Fecha ingreso ",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "error",
+              "displayName": "error",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Mail enviado ",
+              "displayName": "Mail enviado ",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Si",
+                  "value": "Si"
+                },
+                {
+                  "name": "No",
+                  "value": "No"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -992,
+        240
+      ],
+      "id": "73c3a141-58ff-4fef-841d-c65ecb296927",
+      "name": "Registrar Error1",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "qU1lf39GXnxZSyn4",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "juanpi.nicola1@gmail.com",
+        "subject": "=⚠️ Error en el flujo de selección",
+        "message": "==Se produjo un error en el flujo de selección de candidatos.<br><br>\n<b>Error:</b> {{ $json.error?.message ?? JSON.stringify($json.error) ?? 'Error desconocido' }}<br><br>\n<b>Nodo:</b> {{ $json.error?.node?.name ?? 'AI Agent' }}<br><br>\n<b>Candidato:</b> {{ $('Gmail Trigger')?.first()?.json?.from?.value[0]?.address ?? 'No identificado' }}<br><br>\n<b>Fecha:</b> {{ $now.toFormat('dd/MM/yyyy HH:mm') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -784,
+        240
+      ],
+      "id": "3c23d49d-9bc6-4149-8ca0-11d53e943d46",
+      "name": "Send a message1",
+      "webhookId": "12d33c35-a069-4005-9ed0-13423aca5281",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "U4M88jGQe9xXmL7k",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "18f08f86-90f7-41a4-96cf-c992d9d95f68",
+              "leftValue": "={{ $('Gmail Trigger').item.binary.attachment_0.fileExtension ?? $('Gmail Trigger').item.binary.attachment_0.fileName ?? '' }}",
+              "rightValue": "pdf",
+              "operator": {
+                "type": "string",
+                "operation": "endsWith"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -3152,
+        -64
+      ],
+      "id": "452ead24-a109-4a5b-9ef7-cb73a036fb19",
+      "name": "¿Es PDF?"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Gmail Trigger').item.json.from.value[0].address }}",
+        "subject": "=⚠️ Archivo no válido para recepción",
+        "message": "=No se permite otro formato que no sea PDF para los Curriculums.<br><br>\n<b>Archivo:</b> {{ $('Gmail Trigger').item.json.attachments?.[0]?.fileName ?? 'Sin nombre' }}<br><br>\n<b>Candidato:</b> {{ $('Gmail Trigger')?.first()?.json?.from?.value[0]?.address ?? 'No identificado' }}<br><br>\n<b>Motivo:</b> Solo se procesan archivos en formato PDF.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -2880,
+        304
+      ],
+      "id": "009194c4-fd42-4f42-be8c-baf97d61c4f9",
+      "name": "Avisar Error Formato",
+      "webhookId": "3e8559d9-2e55-4bf6-9732-599876ada4ab",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "U4M88jGQe9xXmL7k",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appEakNtIBsD3FmrT",
+          "mode": "list",
+          "cachedResultName": "Sistema de Seleccion RRHH",
+          "cachedResultUrl": "https://airtable.com/appEakNtIBsD3FmrT"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblWO9UioKTjNToC8",
+          "mode": "list",
+          "cachedResultName": "Candidatos",
+          "cachedResultUrl": "https://airtable.com/appEakNtIBsD3FmrT/tblWO9UioKTjNToC8"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $('Gmail Trigger').item.json.from.value[0].address }}",
+            "error": "ERROR POR ARCHIVO",
+            "Estado": "ERROR",
+            "Puesto": "Analista de RRHH"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Nombre",
+              "displayName": "Nombre",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Puesto",
+              "displayName": "Puesto",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Puntaje",
+              "displayName": "Puntaje",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Justificacion",
+              "displayName": "Justificacion",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha ingreso ",
+              "displayName": "Fecha ingreso ",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "error",
+              "displayName": "error",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Mail enviado ",
+              "displayName": "Mail enviado ",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Si",
+                  "value": "Si"
+                },
+                {
+                  "name": "No",
+                  "value": "No"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -2672,
+        304
+      ],
+      "id": "4c1cf816-32de-478b-b373-1199342ef333",
+      "name": "Create a record1",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "qU1lf39GXnxZSyn4",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "¿Es PDF?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Pinecone Vector Store": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Rama Aprobados",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Rama Rechazados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a record": {
+      "main": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Rama Aprobados": {
+      "main": [
+        [
+          {
+            "node": "Mensaje Aprovado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rama Rechazados": {
+      "main": [
+        [
+          {
+            "node": "Mensaje Rechazado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mensaje Aprovado": {
+      "main": [
+        [
+          {
+            "node": "Cambio Aprobado en planilla",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mensaje Rechazado": {
+      "main": [
+        [
+          {
+            "node": "Cambio rechazado en planilla",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Registrar Error1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Update record7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cambio Aprobado en planilla": {
+      "main": [
+        [
+          {
+            "node": "Mark a message as read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cambio rechazado en planilla": {
+      "main": [
+        [
+          {
+            "node": "Mark a message as read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Cohere": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update record6": {
+      "main": [
+        [
+          {
+            "node": "Send message and wait for response2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update record7": {
+      "main": [
+        [
+          {
+            "node": "Update record8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update record8": {
+      "main": [
+        [
+          {
+            "node": "Update record6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message and wait for response2": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registrar Error1": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Es PDF?": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Avisar Error Formato",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Avisar Error Formato": {
+      "main": [
+        [
+          {
+            "node": "Create a record1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "1f2cc246-2bda-4639-810d-c3f35681155e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f5383a9d41ea90b8584e5e0733bf323ff77208df9efeba00eff48f792bfefd8a"
+  },
+  "nodeGroups": [],
+  "id": "jlL8RCyMetYrXCuN",
+  "tags": []
+}
